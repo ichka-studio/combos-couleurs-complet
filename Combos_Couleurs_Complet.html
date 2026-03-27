@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="frame-ancestors *">
+<title>Combos Couleurs — IA Générative</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1b3e;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #8a8a9a;
+    --shadow: rgba(0,0,0,0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(59,130,246,0.25) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(99,102,241,0.2) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(14,165,233,0.1) 0%, transparent 70%);
+    font-family: 'Nunito', sans-serif;
+    color: #ffffff;
+    min-height: 100vh;
+    padding: 40px 24px 60px;
+  }
+
+  /* PRINT */
+  .print-btn {
+    position: fixed;
+    top: 20px; right: 20px;
+    background: linear-gradient(135deg, #ff6b9d, #a855f7);
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 25px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(168,85,247,0.4);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .print-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(168,85,247,0.5);
+  }
+
+  /* PAGE HEADER */
+  .page-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .page-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff9a56, #ff6b9d);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .page-title span {
+    background: linear-gradient(135deg, #ff6b9d, #a855f7, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .page-sub {
+    color: rgba(255,255,255,0.45);
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* CHAPTER HEADER */
+  .chapter {
+    max-width: 1400px;
+    margin: 0 auto 36px;
+    padding: 28px 32px;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .chapter-perso  { background: linear-gradient(135deg, rgba(255,107,157,0.15), rgba(168,85,247,0.15)); border: 1px solid rgba(255,107,157,0.3); }
+  .chapter-paysage { background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(14,165,233,0.15)); border: 1px solid rgba(16,185,129,0.3); }
+  .chapter-objets  { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(239,68,68,0.15)); border: 1px solid rgba(245,158,11,0.3); }
+
+  .chapter-emoji { font-size: 36px; margin-bottom: 8px; display: block; }
+  .chapter-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 3vw, 34px);
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .chapter-title span {
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    display: inline-block;
+  }
+  .chapter-perso  .chapter-title span { background: linear-gradient(135deg, #ff6b9d, #a855f7); }
+  .chapter-paysage .chapter-title span { background: linear-gradient(135deg, #10b981, #0ea5e9); }
+  .chapter-objets  .chapter-title span { background: linear-gradient(135deg, #f59e0b, #ef4444); }
+
+  .chapter-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.05em;
+  }
+  .chapter-cats {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .chapter-cat {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .chapter-perso  .chapter-cat { background: rgba(255,107,157,0.2); color: #ff6b9d; border: 1px solid rgba(255,107,157,0.3); }
+  .chapter-paysage .chapter-cat { background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+  .chapter-objets  .chapter-cat { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    margin: 0 auto 18px;
+    max-width: 1400px;
+    padding-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.15), transparent);
+  }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* CARD — toujours blanc */
+  .card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 24px var(--shadow);
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: transform .2s, box-shadow .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-accent, linear-gradient(90deg, #ff6b9d, #a855f7));
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  }
+
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+  }
+
+  .color-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .color-row:last-child { margin-bottom: 0; }
+
+  .color-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    width: 72px;
+    flex-shrink: 0;
+  }
+
+  .color-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border: 2px solid rgba(255,255,255,0.9);
+  }
+
+  .color-info { flex: 1; }
+  .color-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .color-hex {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent);
+    margin: 10px 0;
+  }
+
+  /* Separator between chapters */
+  .chapter-sep {
+    max-width: 1400px;
+    margin: 50px auto 50px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  }
+
+  @media print {
+    body { background: #fff; padding: 10px; color: #000; }
+    .print-btn { display: none; }
+    .card { break-inside: avoid; box-shadow: none; border: 1px solid #eee; }
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .chapter { border: 1px solid #ddd; }
+    .chapter-title, .section-title { color: #333; }
+  }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+    .chapter { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-tag">Fiche mémo IA générative</div>
+  <h1 class="page-title">Combos <span>Couleurs</span> IA</h1>
+  <p class="page-sub">Personnages · Paysages · Objets — 90 combinaisons · pastille · nom · hex</p>
+</div>
+
+<!-- ═══════════════════════════════════════════ PERSONNAGES ═══ -->
+<div class="chapter chapter-perso">
+  <span class="chapter-emoji">🧍</span>
+  <div class="chapter-title">Combos Personnages</div>
+  <div class="chapter-desc">30 combinaisons · pastille · nom · hex</div>
+  <div class="chapter-cats">
+    <span class="chapter-cat">Corps</span>
+    <span class="chapter-cat">Costume</span>
+    <span class="chapter-cat">Chapeau</span>
+  </div>
+</div>
+
+<div class="section-title">✦ Combinaisons 1 — 15</div>
+<div class="grid" id="grid-perso-1"></div>
+<div class="section-title" style="margin-top:32px">✦ Combinaisons 16 — 30</div>
+<div class="grid" id="grid-perso-2"></div>
+
+<div class="chapter-sep"></div>
+
+<!-- ═══════════════════════════════════════════ PAYSAGES ═══ -->
+<div class="chapter chapter-paysage">
+  <span class="chapter-emoji">🌄</span>
+  <div class="chapter-title">Combos Paysages</div>
+  <div class="chapter-desc">30 combinaisons · pastille · nom · hex</div>
+  <div class="chapter-cats">
+    <span class="chapter-cat">Premier plan</span>
+    <span class="chapter-cat">Milieu</span>
+    <span class="chapter-cat">Arrière-plan</span>
+  </div>
+</div>
+
+<div class="section-title">✦ Combinaisons 1 — 15</div>
+<div class="grid" id="grid-paysage-1"></div>
+<div class="section-title" style="margin-top:32px">✦ Combinaisons 16 — 30</div>
+<div class="grid" id="grid-paysage-2"></div>
+
+<div class="chapter-sep"></div>
+
+<!-- ═══════════════════════════════════════════ OBJETS ═══ -->
+<div class="chapter chapter-objets">
+  <span class="chapter-emoji">🏺</span>
+  <div class="chapter-title">Combos Objets</div>
+  <div class="chapter-desc">30 combinaisons · pastille · nom · hex</div>
+  <div class="chapter-cats">
+    <span class="chapter-cat">Base</span>
+    <span class="chapter-cat">Texture</span>
+    <span class="chapter-cat">Accent</span>
+  </div>
+</div>
+
+<div class="section-title">✦ Combinaisons 1 — 15</div>
+<div class="grid" id="grid-objets-1"></div>
+<div class="section-title" style="margin-top:32px">✦ Combinaisons 16 — 30</div>
+<div class="grid" id="grid-objets-2"></div>
+
+<script>
+/* ─────────────────────────── PERSONNAGES ─────────────────────────── */
+const combosPerso = [
+  { corps:{name:"Rose poudré",hex:"#E8B4B8"},costume:{name:"Gris ardoise",hex:"#708090"},chapeau:{name:"Noir charbon",hex:"#1C1C1C"},accent:"linear-gradient(90deg,#E8B4B8,#708090)"},
+  { corps:{name:"Doré soleil",hex:"#C8952A"},costume:{name:"Blanc cassé",hex:"#F5F0E8"},chapeau:{name:"Bordeaux",hex:"#722F37"},accent:"linear-gradient(90deg,#C8952A,#722F37)"},
+  { corps:{name:"Orangé vif",hex:"#E8732A"},costume:{name:"Vert forêt",hex:"#2D5A27"},chapeau:{name:"Brun terre",hex:"#6B4226"},accent:"linear-gradient(90deg,#E8732A,#2D5A27)"},
+  { corps:{name:"Bleu pâle",hex:"#A8C5DA"},costume:{name:"Beige sable",hex:"#D4C5A9"},chapeau:{name:"Bleu marine",hex:"#1B3A6B"},accent:"linear-gradient(90deg,#A8C5DA,#1B3A6B)"},
+  { corps:{name:"Noir ébène",hex:"#1A1A1A"},costume:{name:"Ivoire crème",hex:"#FFFFF0"},chapeau:{name:"Violet profond",hex:"#4B0082"},accent:"linear-gradient(90deg,#555,#4B0082)"},
+  { corps:{name:"Rouge foncé",hex:"#8B1A1A"},costume:{name:"Noir brillant",hex:"#0D0D0D"},chapeau:{name:"Gris perle",hex:"#C8C8C8"},accent:"linear-gradient(90deg,#8B1A1A,#0D0D0D)"},
+  { corps:{name:"Brun-roux",hex:"#8B4513"},costume:{name:"Gris ardoise",hex:"#6A7B8A"},chapeau:{name:"Vert olive",hex:"#6B6B2A"},accent:"linear-gradient(90deg,#8B4513,#6B6B2A)"},
+  { corps:{name:"Vert clair",hex:"#90EE90"},costume:{name:"Chocolat",hex:"#3D1C02"},chapeau:{name:"Sable doré",hex:"#C2A96E"},accent:"linear-gradient(90deg,#90EE90,#3D1C02)"},
+  { corps:{name:"Blanc perle",hex:"#F0EAD6"},costume:{name:"Anthracite",hex:"#2F2F2F"},chapeau:{name:"Rouge profond",hex:"#9B1B30"},accent:"linear-gradient(90deg,#F0EAD6,#9B1B30)"},
+  { corps:{name:"Gris argent",hex:"#A8A9AD"},costume:{name:"Indigo nuit",hex:"#2E0854"},chapeau:{name:"Bleu glacier",hex:"#A8D5E2"},accent:"linear-gradient(90deg,#A8A9AD,#2E0854)"},
+  { corps:{name:"Turquoise",hex:"#40E0D0"},costume:{name:"Gris clair",hex:"#D3D3D3"},chapeau:{name:"Crème vanille",hex:"#F3E5AB"},accent:"linear-gradient(90deg,#40E0D0,#D3D3D3)"},
+  { corps:{name:"Os pâle",hex:"#E8DCC8"},costume:{name:"Bleu pétrole",hex:"#005F73"},chapeau:{name:"Noir jais",hex:"#080808"},accent:"linear-gradient(90deg,#E8DCC8,#005F73)"},
+  { corps:{name:"Cuivre rosé",hex:"#CB6D51"},costume:{name:"Prune",hex:"#4A0030"},chapeau:{name:"Gris foncé",hex:"#3A3A3A"},accent:"linear-gradient(90deg,#CB6D51,#4A0030)"},
+  { corps:{name:"Ivoire nacré",hex:"#FAEBD7"},costume:{name:"Vert mousse",hex:"#4A5240"},chapeau:{name:"Rouille",hex:"#8E402A"},accent:"linear-gradient(90deg,#FAEBD7,#4A5240)"},
+  { corps:{name:"Bleu nuit",hex:"#191970"},costume:{name:"Or antique",hex:"#CFB53B"},chapeau:{name:"Bordeaux mat",hex:"#5C0A14"},accent:"linear-gradient(90deg,#191970,#CFB53B)"},
+  { corps:{name:"Lavande doux",hex:"#B57EDC"},costume:{name:"Blanc pur",hex:"#FFFFFF"},chapeau:{name:"Noir mat",hex:"#222222"},accent:"linear-gradient(90deg,#B57EDC,#222222)"},
+  { corps:{name:"Jade émeraude",hex:"#00A86B"},costume:{name:"Crème écru",hex:"#EDE0C8"},chapeau:{name:"Marron foncé",hex:"#3B1F0A"},accent:"linear-gradient(90deg,#00A86B,#3B1F0A)"},
+  { corps:{name:"Pêche abricot",hex:"#FFCBA4"},costume:{name:"Teal profond",hex:"#006D77"},chapeau:{name:"Blanc neige",hex:"#FFFAFA"},accent:"linear-gradient(90deg,#FFCBA4,#006D77)"},
+  { corps:{name:"Charbon",hex:"#2B2B2B"},costume:{name:"Rouge sang",hex:"#8B0000"},chapeau:{name:"Or brillant",hex:"#FFD700"},accent:"linear-gradient(90deg,#2B2B2B,#8B0000)"},
+  { corps:{name:"Saumon rosé",hex:"#FA8072"},costume:{name:"Noir minuit",hex:"#111111"},chapeau:{name:"Argent",hex:"#C0C0C0"},accent:"linear-gradient(90deg,#FA8072,#111111)"},
+  { corps:{name:"Ocre brun",hex:"#CC7722"},costume:{name:"Bleu ciel",hex:"#87CEEB"},chapeau:{name:"Terre cuite",hex:"#C4622D"},accent:"linear-gradient(90deg,#CC7722,#87CEEB)"},
+  { corps:{name:"Magenta vif",hex:"#C2185B"},costume:{name:"Gris béton",hex:"#9E9E9E"},chapeau:{name:"Noir graphite",hex:"#1A1A1A"},accent:"linear-gradient(90deg,#C2185B,#9E9E9E)"},
+  { corps:{name:"Vert sauge",hex:"#B2AC88"},costume:{name:"Violet nuit",hex:"#2D1B69"},chapeau:{name:"Beige lin",hex:"#E8D5B7"},accent:"linear-gradient(90deg,#B2AC88,#2D1B69)"},
+  { corps:{name:"Bleu acier",hex:"#4682B4"},costume:{name:"Blanc cassé",hex:"#FAFAF0"},chapeau:{name:"Rouge brique",hex:"#CB4154"},accent:"linear-gradient(90deg,#4682B4,#CB4154)"},
+  { corps:{name:"Miel ambré",hex:"#E8A020"},costume:{name:"Vert chasseur",hex:"#355E3B"},chapeau:{name:"Brun cuir",hex:"#6F4E37"},accent:"linear-gradient(90deg,#E8A020,#355E3B)"},
+  { corps:{name:"Lilas pâle",hex:"#DDA0DD"},costume:{name:"Noir velours",hex:"#0A0A0A"},chapeau:{name:"Rose fuchsia",hex:"#FF1493"},accent:"linear-gradient(90deg,#DDA0DD,#FF1493)"},
+  { corps:{name:"Citron givré",hex:"#F9E04B"},costume:{name:"Bleu cobalt",hex:"#0047AB"},chapeau:{name:"Blanc pur",hex:"#FFFFFF"},accent:"linear-gradient(90deg,#F9E04B,#0047AB)"},
+  { corps:{name:"Bordeaux glacé",hex:"#6D2B3D"},costume:{name:"Or champagne",hex:"#F7E7CE"},chapeau:{name:"Gris souris",hex:"#808080"},accent:"linear-gradient(90deg,#6D2B3D,#F7E7CE)"},
+  { corps:{name:"Corail vif",hex:"#FF6B47"},costume:{name:"Bleu nuit",hex:"#0C1B33"},chapeau:{name:"Crème dorée",hex:"#F5DEB3"},accent:"linear-gradient(90deg,#FF6B47,#0C1B33)"},
+  { corps:{name:"Bleu glacier",hex:"#B0E0E6"},costume:{name:"Prune foncé",hex:"#3B0030"},chapeau:{name:"Argent givré",hex:"#E8E8E8"},accent:"linear-gradient(90deg,#B0E0E6,#3B0030)"},
+];
+
+/* ─────────────────────────── PAYSAGES ─────────────────────────── */
+const combosPaysage = [
+  { a:{name:"Herbe vive",hex:"#5A8A3C"},b:{name:"Collines bleues",hex:"#7BA7BC"},c:{name:"Ciel azur",hex:"#87CEEB"},accent:"linear-gradient(90deg,#5A8A3C,#87CEEB)"},
+  { a:{name:"Sable doré",hex:"#E2C27D"},b:{name:"Mer turquoise",hex:"#00B4D8"},c:{name:"Horizon rosé",hex:"#FFCAD4"},accent:"linear-gradient(90deg,#E2C27D,#00B4D8)"},
+  { a:{name:"Roche sombre",hex:"#4A4A4A"},b:{name:"Glace bleue",hex:"#A8D8EA"},c:{name:"Ciel arctique",hex:"#E8F4FD"},accent:"linear-gradient(90deg,#4A4A4A,#A8D8EA)"},
+  { a:{name:"Lave noire",hex:"#2C2C2C"},b:{name:"Feu orange",hex:"#FF6B35"},c:{name:"Fumée grise",hex:"#B8B8B8"},accent:"linear-gradient(90deg,#2C2C2C,#FF6B35)"},
+  { a:{name:"Boue ocre",hex:"#A0522D"},b:{name:"Savane jaune",hex:"#D4A844"},c:{name:"Ciel brûlé",hex:"#FF8C42"},accent:"linear-gradient(90deg,#A0522D,#D4A844)"},
+  { a:{name:"Mousse verte",hex:"#4E7C59"},b:{name:"Brume grise",hex:"#9EAAB5"},c:{name:"Ciel pâle",hex:"#C8D8E4"},accent:"linear-gradient(90deg,#4E7C59,#C8D8E4)"},
+  { a:{name:"Neige pure",hex:"#F0F4F8"},b:{name:"Forêt sombre",hex:"#1B4332"},c:{name:"Ciel hivernal",hex:"#A8C5DA"},accent:"linear-gradient(90deg,#F0F4F8,#1B4332)"},
+  { a:{name:"Terre rouge",hex:"#C1440E"},b:{name:"Buisson sec",hex:"#8B7355"},c:{name:"Ciel crépuscule",hex:"#FF7043"},accent:"linear-gradient(90deg,#C1440E,#FF7043)"},
+  { a:{name:"Eau verte",hex:"#3D9970"},b:{name:"Mangrove foncée",hex:"#1A3A2A"},c:{name:"Ciel tropical",hex:"#48CAE4"},accent:"linear-gradient(90deg,#3D9970,#48CAE4)"},
+  { a:{name:"Pierre calcaire",hex:"#C9B99A"},b:{name:"Garrigue grise",hex:"#8C8C74"},c:{name:"Ciel méditerranéen",hex:"#6BA3BE"},accent:"linear-gradient(90deg,#C9B99A,#6BA3BE)"},
+  { a:{name:"Limon brun",hex:"#7D5A44"},b:{name:"Rizière verte",hex:"#6B9E3F"},c:{name:"Ciel nuageux",hex:"#B0C4DE"},accent:"linear-gradient(90deg,#7D5A44,#6B9E3F)"},
+  { a:{name:"Coral reef",hex:"#FF6B6B"},b:{name:"Lagon vert",hex:"#20B2AA"},c:{name:"Ciel maritime",hex:"#4FC3F7"},accent:"linear-gradient(90deg,#FF6B6B,#20B2AA)"},
+  { a:{name:"Toundra grise",hex:"#9E9E9E"},b:{name:"Lichen jaune",hex:"#BDB76B"},c:{name:"Aurore violette",hex:"#7B2D8B"},accent:"linear-gradient(90deg,#9E9E9E,#7B2D8B)"},
+  { a:{name:"Dune blonde",hex:"#F4D03F"},b:{name:"Oasis verte",hex:"#27AE60"},c:{name:"Ciel saharien",hex:"#E8CDAN"},accent:"linear-gradient(90deg,#F4D03F,#27AE60)"},
+  { a:{name:"Tourbe noire",hex:"#3D2B1F"},b:{name:"Bruyère rose",hex:"#C9608B"},c:{name:"Ciel écossais",hex:"#85A9C5"},accent:"linear-gradient(90deg,#3D2B1F,#C9608B)"},
+  { a:{name:"Galets gris",hex:"#9E9E9E"},b:{name:"Falaise blanche",hex:"#F5F5DC"},c:{name:"Mer ardoise",hex:"#4682B4"},accent:"linear-gradient(90deg,#9E9E9E,#4682B4)"},
+  { a:{name:"Bambou vert",hex:"#5D8A5E"},b:{name:"Brume matinale",hex:"#D6E4EE"},c:{name:"Montagne bleue",hex:"#3A7CA5"},accent:"linear-gradient(90deg,#5D8A5E,#3A7CA5)"},
+  { a:{name:"Cendres grises",hex:"#7A7A7A"},b:{name:"Fleurs roses",hex:"#FFB7C5"},c:{name:"Ciel printanier",hex:"#E0F0FF"},accent:"linear-gradient(90deg,#7A7A7A,#FFB7C5)"},
+  { a:{name:"Prairie foncée",hex:"#355E3B"},b:{name:"Rivière bleue",hex:"#1E90FF"},c:{name:"Ciel d'été",hex:"#87CEFA"},accent:"linear-gradient(90deg,#355E3B,#87CEFA)"},
+  { a:{name:"Roche volcanique",hex:"#363636"},b:{name:"Végétation noire",hex:"#1C2B1C"},c:{name:"Ciel magenta",hex:"#8B1A8B"},accent:"linear-gradient(90deg,#363636,#8B1A8B)"},
+  { a:{name:"Sable blanc",hex:"#F5F5DC"},b:{name:"Lagune verte",hex:"#70C1B3"},c:{name:"Ciel corail",hex:"#FF9A76"},accent:"linear-gradient(90deg,#F5F5DC,#FF9A76)"},
+  { a:{name:"Forêt automnale",hex:"#CC5500"},b:{name:"Lac miroir",hex:"#4A90D9"},c:{name:"Ciel nuancé",hex:"#C9D6DF"},accent:"linear-gradient(90deg,#CC5500,#4A90D9)"},
+  { a:{name:"Marécage brun",hex:"#6B4C2A"},b:{name:"Eau stagnante",hex:"#4E7B6B"},c:{name:"Ciel lourd",hex:"#6E7F80"},accent:"linear-gradient(90deg,#6B4C2A,#4E7B6B)"},
+  { a:{name:"Cristal blanc",hex:"#E8E8E8"},b:{name:"Glace bleue",hex:"#B3D9F2"},c:{name:"Aurore boréale",hex:"#00FF7F"},accent:"linear-gradient(90deg,#E8E8E8,#00FF7F)"},
+  { a:{name:"Rocaille dorée",hex:"#D4AC0D"},b:{name:"Sauge verte",hex:"#7D9B76"},c:{name:"Ciel lilas",hex:"#C8A2C8"},accent:"linear-gradient(90deg,#D4AC0D,#C8A2C8)"},
+  { a:{name:"Argile rouge",hex:"#B7410E"},b:{name:"Acacia brun",hex:"#8B6914"},c:{name:"Coucher soleil",hex:"#FF4500"},accent:"linear-gradient(90deg,#B7410E,#FF4500)"},
+  { a:{name:"Lierre sombre",hex:"#2E4A3E"},b:{name:"Pierre grise",hex:"#A0A0A0"},c:{name:"Ciel anglais",hex:"#B0BEC5"},accent:"linear-gradient(90deg,#2E4A3E,#B0BEC5)"},
+  { a:{name:"Feuilles mortes",hex:"#A0522D"},b:{name:"Champignons beige",hex:"#D2B48C"},c:{name:"Brume automnale",hex:"#B8C5D6"},accent:"linear-gradient(90deg,#A0522D,#B8C5D6)"},
+  { a:{name:"Corail rosé",hex:"#FF7F7F"},b:{name:"Fond marin bleu",hex:"#006994"},c:{name:"Surface azurée",hex:"#40E0D0"},accent:"linear-gradient(90deg,#FF7F7F,#006994)"},
+  { a:{name:"Champ doré",hex:"#F5C518"},b:{name:"Forêt verte",hex:"#228B22"},c:{name:"Ciel bleu profond",hex:"#1565C0"},accent:"linear-gradient(90deg,#F5C518,#1565C0)"},
+];
+
+/* ─────────────────────────── OBJETS ─────────────────────────── */
+const combosObjets = [
+  { a:{name:"Chêne naturel",hex:"#8B6914"},b:{name:"Grain foncé",hex:"#5C3D1E"},c:{name:"Cuivre doré",hex:"#B87333"},accent:"linear-gradient(90deg,#8B6914,#B87333)"},
+  { a:{name:"Acier brossé",hex:"#8E9EAB"},b:{name:"Chrome poli",hex:"#C8D6DF"},c:{name:"Noir mat",hex:"#222222"},accent:"linear-gradient(90deg,#8E9EAB,#222222)"},
+  { a:{name:"Argile ocre",hex:"#C08455"},b:{name:"Terre brûlée",hex:"#8B4513"},c:{name:"Ivoire crème",hex:"#FFFFF0"},accent:"linear-gradient(90deg,#C08455,#FFFFF0)"},
+  { a:{name:"Verre soufflé",hex:"#B2D8D8"},b:{name:"Reflet givré",hex:"#E8F4FD"},c:{name:"Liseré doré",hex:"#CFB53B"},accent:"linear-gradient(90deg,#B2D8D8,#CFB53B)"},
+  { a:{name:"Velours rouge",hex:"#8B1A1A"},b:{name:"Broderie or",hex:"#DAA520"},c:{name:"Liseré noir",hex:"#111111"},accent:"linear-gradient(90deg,#8B1A1A,#DAA520)"},
+  { a:{name:"Marbre blanc",hex:"#F5F5F5"},b:{name:"Veines grises",hex:"#A0A0A0"},c:{name:"Dorure fine",hex:"#B8860B"},accent:"linear-gradient(90deg,#F5F5F5,#B8860B)"},
+  { a:{name:"Laiton antique",hex:"#B5A642"},b:{name:"Patine verte",hex:"#4A7C59"},c:{name:"Brun foncé",hex:"#3B2314"},accent:"linear-gradient(90deg,#B5A642,#4A7C59)"},
+  { a:{name:"Cuir camel",hex:"#C19A6B"},b:{name:"Coutures brunes",hex:"#6B3A2A"},c:{name:"Boucle argent",hex:"#C0C0C0"},accent:"linear-gradient(90deg,#C19A6B,#C0C0C0)"},
+  { a:{name:"Plastique blanc",hex:"#FAFAFA"},b:{name:"Joint gris",hex:"#9E9E9E"},c:{name:"Bouton bleu",hex:"#2196F3"},accent:"linear-gradient(90deg,#FAFAFA,#2196F3)"},
+  { a:{name:"Porcelaine bleue",hex:"#5B7FA6"},b:{name:"Email blanc",hex:"#F8F8FF"},c:{name:"Motif cobalt",hex:"#0047AB"},accent:"linear-gradient(90deg,#5B7FA6,#0047AB)"},
+  { a:{name:"Bambou clair",hex:"#E3C78A"},b:{name:"Nœuds foncés",hex:"#8B6914"},c:{name:"Corde beige",hex:"#D2B48C"},accent:"linear-gradient(90deg,#E3C78A,#D2B48C)"},
+  { a:{name:"Fonte noire",hex:"#2C2C2C"},b:{name:"Rouille orange",hex:"#8B4513"},c:{name:"Joint blanc",hex:"#F0F0F0"},accent:"linear-gradient(90deg,#2C2C2C,#8B4513)"},
+  { a:{name:"Soie ivoire",hex:"#FFFFF0"},b:{name:"Fil argenté",hex:"#C8C8C8"},c:{name:"Ruban rose",hex:"#FFB6C1"},accent:"linear-gradient(90deg,#FFFFF0,#FFB6C1)"},
+  { a:{name:"Obsidienne",hex:"#1A1A2E"},b:{name:"Reflet violet",hex:"#4A0082"},c:{name:"Éclat blanc",hex:"#E8E8FF"},accent:"linear-gradient(90deg,#1A1A2E,#E8E8FF)"},
+  { a:{name:"Terre cuite",hex:"#CC5500"},b:{name:"Engobe beige",hex:"#D2B48C"},c:{name:"Motif noir",hex:"#1C1C1C"},accent:"linear-gradient(90deg,#CC5500,#1C1C1C)"},
+  { a:{name:"Résine ambrée",hex:"#FFBF00"},b:{name:"Inclusion brun",hex:"#6B3A2A"},c:{name:"Brillance or",hex:"#FFD700"},accent:"linear-gradient(90deg,#FFBF00,#FFD700)"},
+  { a:{name:"Lin naturel",hex:"#E8D5B7"},b:{name:"Trame grise",hex:"#9E9E9E"},c:{name:"Lisière indigo",hex:"#3F51B5"},accent:"linear-gradient(90deg,#E8D5B7,#3F51B5)"},
+  { a:{name:"Granit gris",hex:"#6B6B6B"},b:{name:"Cristaux blancs",hex:"#DCDCDC"},c:{name:"Veine rose",hex:"#D4A0A0"},accent:"linear-gradient(90deg,#6B6B6B,#D4A0A0)"},
+  { a:{name:"Bois flotté",hex:"#A0998A"},b:{name:"Sel blanc",hex:"#F5F5F5"},c:{name:"Métal rouillé",hex:"#8B4513"},accent:"linear-gradient(90deg,#A0998A,#8B4513)"},
+  { a:{name:"Email noir",hex:"#1A1A1A"},b:{name:"Filigrane or",hex:"#CFB53B"},c:{name:"Pierre rouge",hex:"#C41E3A"},accent:"linear-gradient(90deg,#1A1A1A,#CFB53B)"},
+  { a:{name:"Papier jauni",hex:"#F5DEB3"},b:{name:"Encre sépia",hex:"#704214"},c:{name:"Sceau rouge",hex:"#8B1A1A"},accent:"linear-gradient(90deg,#F5DEB3,#8B1A1A)"},
+  { a:{name:"Céramique verte",hex:"#4A8B5C"},b:{name:"Glaçure crème",hex:"#FFF8DC"},c:{name:"Bord doré",hex:"#B8860B"},accent:"linear-gradient(90deg,#4A8B5C,#B8860B)"},
+  { a:{name:"Titane mat",hex:"#878681"},b:{name:"Sablé fin",hex:"#C0B9A8"},c:{name:"Logo noir",hex:"#000000"},accent:"linear-gradient(90deg,#878681,#000000)"},
+  { a:{name:"Cristal rose",hex:"#FFB7C5"},b:{name:"Facettes claires",hex:"#FFE4E1"},c:{name:"Monture argent",hex:"#C0C0C0"},accent:"linear-gradient(90deg,#FFB7C5,#C0C0C0)"},
+  { a:{name:"Teck huilé",hex:"#6B4C2A"},b:{name:"Fibres claires",hex:"#A0896A"},c:{name:"Vis inox",hex:"#B0B8C0"},accent:"linear-gradient(90deg,#6B4C2A,#B0B8C0)"},
+  { a:{name:"Email turquoise",hex:"#40E0D0"},b:{name:"Résine blanche",hex:"#F8FAFA"},c:{name:"Bord cuivre",hex:"#B87333"},accent:"linear-gradient(90deg,#40E0D0,#B87333)"},
+  { a:{name:"Pierre bleue",hex:"#5B7FA6"},b:{name:"Veiné blanc",hex:"#EEF2F5"},c:{name:"Attache noire",hex:"#1A1A1A"},accent:"linear-gradient(90deg,#5B7FA6,#1A1A1A)"},
+  { a:{name:"Noyer sombre",hex:"#4A3728"},b:{name:"Marqueterie",hex:"#D4A843"},c:{name:"Poignée bronze",hex:"#7B5B3A"},accent:"linear-gradient(90deg,#4A3728,#7B5B3A)"},
+  { a:{name:"Ardoise grise",hex:"#708090"},b:{name:"Texture mate",hex:"#9E9E9E"},c:{name:"Joint rouge",hex:"#B22222"},accent:"linear-gradient(90deg,#708090,#B22222)"},
+  { a:{name:"Ébène noir",hex:"#0A0A0A"},b:{name:"Nacre dorée",hex:"#F5E6C8"},c:{name:"Diamant blanc",hex:"#F8F8FF"},accent:"linear-gradient(90deg,#0A0A0A,#F5E6C8)"},
+];
+
+/* ─────────────────────────── BUILD CARDS ─────────────────────────── */
+function buildCard(combo, index, labels, keys, prefix) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.setProperty('--card-accent', combo.accent);
+
+  const num = document.createElement('div');
+  num.className = 'card-num';
+  num.textContent = `${prefix} #${String(index + 1).padStart(2, '0')}`;
+  card.appendChild(num);
+
+  keys.forEach((key, i) => {
+    const row = document.createElement('div');
+    row.className = 'color-row';
+
+    const label = document.createElement('div');
+    label.className = 'color-label';
+    label.textContent = labels[i];
+
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch';
+    swatch.style.backgroundColor = combo[key].hex;
+    if (['#FFFFFF','#FAFAF0','#FFFAFA','#F8F8FF','#FAFAFA'].includes(combo[key].hex)) {
+      swatch.style.border = '2px solid #ddd';
+    }
+
+    const info = document.createElement('div');
+    info.className = 'color-info';
+    const name = document.createElement('div');
+    name.className = 'color-name';
+    name.textContent = combo[key].name;
+    const hex = document.createElement('div');
+    hex.className = 'color-hex';
+    hex.textContent = combo[key].hex;
+    info.appendChild(name);
+    info.appendChild(hex);
+
+    row.appendChild(label);
+    row.appendChild(swatch);
+    row.appendChild(info);
+    card.appendChild(row);
+
+    if (i < 2) {
+      const div = document.createElement('div');
+      div.className = 'divider';
+      card.appendChild(div);
+    }
+  });
+  return card;
+}
+
+function populateGrids(data, id1, id2, labels, keys, prefix) {
+  const g1 = document.getElementById(id1);
+  const g2 = document.getElementById(id2);
+  data.forEach((combo, i) => {
+    const card = buildCard(combo, i, labels, keys, prefix);
+    if (i < 15) g1.appendChild(card);
+    else g2.appendChild(card);
+  });
+}
+
+// PERSONNAGES
+populateGrids(combosPerso, 'grid-perso-1', 'grid-perso-2',
+  ['Corps','Costume','Chapeau'], ['corps','costume','chapeau'], 'PERSO');
+
+// PAYSAGES
+populateGrids(combosPaysage, 'grid-paysage-1', 'grid-paysage-2',
+  ['1er plan','Milieu','Arrière'], ['a','b','c'], 'PAYSAGE');
+
+// OBJETS
+populateGrids(combosObjets, 'grid-objets-1', 'grid-objets-2',
+  ['Base','Texture','Accent'], ['a','b','c'], 'OBJET');
+</script>
+
+</body>
+</html>
