@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiche Eaux — Couleurs et Reflets</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1b3e;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #8a8a9a;
+    --shadow: rgba(0,0,0,0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(59,130,246,0.25) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(99,102,241,0.2) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(14,165,233,0.1) 0%, transparent 70%);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    color: #ffffff;
+    min-height: 100vh;
+    padding: 40px 48px 60px;
+    max-width: 1920px;
+    margin: 0 auto;
+  }
+
+  /* PRINT */
+  .print-btn {
+    position: fixed;
+    top: 20px; right: 20px;
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 25px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(6,182,212,0.4);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .print-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(6,182,212,0.5);
+  }
+
+  /* PAGE HEADER */
+  .page-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  .page-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 58px);
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .page-sub {
+    color: rgba(255,255,255,0.45);
+    font-size: 15px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* CHAPTER HEADER */
+  .chapter {
+    max-width: 1800px;
+    margin: 0 auto 36px;
+    padding: 28px 32px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(6,182,212,0.12));
+    border: 1px solid rgba(14,165,233,0.3);
+  }
+  .chapter-emoji { font-size: 40px; margin-bottom: 8px; display: block; }
+  .chapter-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 3vw, 38px);
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .chapter-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.05em;
+  }
+  .chapter-cats {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .chapter-cat {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    background: rgba(14,165,233,0.2);
+    color: #38bdf8;
+    border: 1px solid rgba(14,165,233,0.35);
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    margin: 0 auto 18px;
+    max-width: 1800px;
+    padding-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.15), transparent);
+  }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+    max-width: 1800px;
+    margin: 0 auto;
+  }
+
+  /* CARD */
+  .card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 4px 24px var(--shadow);
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: transform .2s, box-shadow .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-accent, linear-gradient(90deg, #0ea5e9, #06b6d4));
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  }
+
+  /* CARD NUMBER & TITLE */
+  .card-header {
+    margin-bottom: 16px;
+  }
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .card-title-fr {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .card-title-en {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ROWS */
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  .info-row:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .info-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    width: 80px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .info-content {
+    flex: 1;
+  }
+
+  /* Color swatch inline */
+  .color-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    border: 2px solid rgba(255,255,255,0.8);
+  }
+  .color-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .info-text {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  /* PROMPT BOX */
+  .prompt-block {
+    margin-top: 14px;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 13px 15px;
+    border-left: 3px solid #0ea5e9;
+  }
+  .prompt-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #0ea5e9;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .prompt-en {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: #2d3748;
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .prompt-fr {
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    color: #718096;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  /* Separator */
+  .chapter-sep {
+    max-width: 1400px;
+    margin: 50px auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  }
+
+  @media print {
+    body { background: #fff; padding: 10px; color: #000; }
+    .print-btn { display: none; }
+    .card { break-inside: avoid; box-shadow: none; border: 1px solid #eee; }
+    .grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  }
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">🖨️ Imprimer / PDF</button>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-tag">Fiche mémo IA générative</div>
+  <h1 class="page-title">🌊 Couleurs et Reflets — Eaux</h1>
+  <p class="page-sub">12 types d'eaux · couleur dominante · reflets · contexte · prompt EN / FR</p>
+</div>
+
+<!-- CHAPTER HEADER -->
+<div class="chapter">
+  <span class="chapter-emoji">🌊</span>
+  <div class="chapter-title">Fiche des Eaux</div>
+  <div class="chapter-desc">Couleurs dominantes · Reflets & textures · Contexte · Prompts bilingues</div>
+  <div class="chapter-cats">
+    <span class="chapter-cat">Couleur dominante</span>
+    <span class="chapter-cat">Reflets / Texture</span>
+    <span class="chapter-cat">Contexte</span>
+    <span class="chapter-cat">Prompt EN · FR</span>
+  </div>
+</div>
+
+<div class="section-title">✦ Fiches 1 — 6</div>
+<div class="grid" id="grid1"></div>
+
+<div class="section-title" style="margin-top:32px">✦ Fiches 7 — 12</div>
+<div class="grid" id="grid2"></div>
+
+<script>
+const eaux = [
+  {
+    num: '01',
+    fr: 'Lagune tropicale',
+    en: 'Tropical Lagoon',
+    couleur: { name: 'Turquoise translucide', hex: '#40E0D0' },
+    reflets: 'Scintillements jade, fond sablonneux visible',
+    contexte: 'Eaux peu profondes, sable blanc, lumière crue',
+    promptEn: 'Translucent turquoise with jade sparkles, coral sand visible below',
+    promptFr: 'Turquoise translucide avec des scintillements jade, sable corallien visible au fond',
+    accent: 'linear-gradient(90deg, #40E0D0, #00CED1)'
+  },
+  {
+    num: '02',
+    fr: 'Océan profond',
+    en: 'Deep Ocean',
+    couleur: { name: 'Bleu encre', hex: '#1C2B5E' },
+    reflets: 'Crêtes gris acier, éclats argentés',
+    contexte: 'Haute mer, lumière atténuée',
+    promptEn: 'Inky blue with steel-gray crests and silver flickers',
+    promptFr: 'Bleu encre avec des crêtes gris acier et des éclats argentés',
+    accent: 'linear-gradient(90deg, #1C2B5E, #4A6FA5)'
+  },
+  {
+    num: '03',
+    fr: 'Lac de montagne',
+    en: 'Mountain Lake',
+    couleur: { name: 'Bleu saphir froid', hex: '#2255A4' },
+    reflets: 'Reflets miroir de pins et de sommets',
+    contexte: 'Altitude, air pur, calme absolu',
+    promptEn: 'Cold sapphire tone with mirror-like reflections of pines and snowy peaks',
+    promptFr: 'Ton saphir froid avec des reflets miroir de pins et de sommets enneigés',
+    accent: 'linear-gradient(90deg, #2255A4, #5B9BD5)'
+  },
+  {
+    num: '04',
+    fr: 'Flaques de pluie urbaines',
+    en: 'Urban Rain Puddles',
+    couleur: { name: 'Indigo sale', hex: '#3D3B6E' },
+    reflets: 'Reflets brisés de néons ou de ciel gris',
+    contexte: 'Sol asphalté, nuit pluvieuse, lumière urbaine',
+    promptEn: 'Dirty indigo with shattered reflections of neon or gray sky',
+    promptFr: 'Indigo sale avec des reflets brisés de néons ou de ciel gris',
+    accent: 'linear-gradient(90deg, #3D3B6E, #FF6B9D)'
+  },
+  {
+    num: '05',
+    fr: 'Eau de fonte glaciaire',
+    en: 'Glacial Meltwater',
+    couleur: { name: 'Turquoise givré', hex: '#A8E6E2' },
+    reflets: 'Volutes cyan laiteuses, lumière diffuse',
+    contexte: 'Glaciers, bassins minéraux, lumière froide',
+    promptEn: 'Frosted turquoise with milky cyan swirls under soft light',
+    promptFr: 'Turquoise givré avec des volutes cyan laiteuses sous une lumière douce',
+    accent: 'linear-gradient(90deg, #A8E6E2, #48CAE4)'
+  },
+  {
+    num: '06',
+    fr: 'Oasis désertique',
+    en: 'Desert Oasis',
+    couleur: { name: "Vert d'eau limpide", hex: '#3CBFB0' },
+    reflets: 'Nuances ambrées, ombres de roseaux',
+    contexte: 'Sable chaud, végétation clairsemée',
+    promptEn: 'Clear teal with amber undertones and reed shadows',
+    promptFr: "Vert d'eau limpide avec des nuances ambrées et des ombres de roseaux",
+    accent: 'linear-gradient(90deg, #3CBFB0, #D4A843)'
+  },
+  {
+    num: '07',
+    fr: 'Canal urbain',
+    en: 'Urban Canal',
+    couleur: { name: 'Vert-gris trouble', hex: '#6B8F71' },
+    reflets: 'Traînées miroir déformées',
+    contexte: 'Ville, façades, pollution lumineuse',
+    promptEn: 'Murky green-gray with distorted mirror streaks of buildings and signs',
+    promptFr: 'Vert-gris trouble avec des traînées miroir déformées de bâtiments et de panneaux',
+    accent: 'linear-gradient(90deg, #6B8F71, #4A6FA5)'
+  },
+  {
+    num: '08',
+    fr: 'Rivière au clair de lune',
+    en: 'Moonlit River',
+    couleur: { name: 'Gris charbon', hex: '#4A4A4A' },
+    reflets: 'Éclat argenté doux, ombres flottantes',
+    contexte: 'Nuit calme, nature silencieuse',
+    promptEn: 'Charcoal-gray with soft silver sheen and drifting branch shadows',
+    promptFr: 'Gris charbon avec un éclat argenté doux et des ombres de branches flottantes',
+    accent: 'linear-gradient(90deg, #4A4A4A, #C0C0C0)'
+  },
+  {
+    num: '09',
+    fr: 'Cénote',
+    en: 'Cenote',
+    couleur: { name: 'Noir obsidienne', hex: '#1A1A2E' },
+    reflets: 'Faisceaux émeraude perçants',
+    contexte: 'Puits naturel, lumière verticale filtrée',
+    promptEn: 'Obsidian black with piercing emerald shafts from above',
+    promptFr: 'Noir obsidienne avec des faisceaux émeraude perçants venus du dessus',
+    accent: 'linear-gradient(90deg, #1A1A2E, #00A86B)'
+  },
+  {
+    num: '10',
+    fr: 'Source thermale volcanique',
+    en: 'Volcanic Hot Spring',
+    couleur: { name: 'Bleu minéral trouble', hex: '#4A90A4' },
+    reflets: 'Taches orangées, vapeur en volutes',
+    contexte: 'Roches chaudes, activité géothermique',
+    promptEn: 'Cloudy mineral blue with orange iron-rich stains and curling steam',
+    promptFr: 'Bleu minéral trouble avec des taches orangées riches en fer et de la vapeur en volutes',
+    accent: 'linear-gradient(90deg, #4A90A4, #CC5500)'
+  },
+  {
+    num: '11',
+    fr: 'Eaux de fjord',
+    en: 'Fjord Waters',
+    couleur: { name: 'Gris étain', hex: '#8C9EA6' },
+    reflets: 'Reflets nets de falaises et de ciel',
+    contexte: 'Falaises abruptes, climat froid et stable',
+    promptEn: 'Still pewter gray with crisp reflections of cliffs and sky',
+    promptFr: 'Gris étain immobile avec des reflets nets de falaises et de ciel',
+    accent: 'linear-gradient(90deg, #8C9EA6, #C8D6DF)'
+  },
+  {
+    num: '12',
+    fr: 'Mer arctique',
+    en: 'Polar Sea',
+    couleur: { name: 'Cyan terne', hex: '#7EC8C8' },
+    reflets: 'Glace flottante, lumière basse',
+    contexte: 'Banquise, froid extrême, soleil rasant',
+    promptEn: 'Dull cyan scattered with floating ice, lit by low arctic sun',
+    promptFr: 'Cyan terne parsemé de glace flottante, éclairé par un soleil arctique rasant',
+    accent: 'linear-gradient(90deg, #7EC8C8, #E8F4FD)'
+  }
+];
+
+function buildCard(eau) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.setProperty('--card-accent', eau.accent);
+
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-num">FICHE #${eau.num}</div>
+      <div class="card-title-fr">${eau.fr}</div>
+      <div class="card-title-en">${eau.en}</div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">Couleur</div>
+      <div class="info-content">
+        <div class="color-line">
+          <div class="color-swatch" style="background:${eau.couleur.hex}; ${['#FFFFFF','#F8FAFA','#E8F4FD'].includes(eau.couleur.hex) ? 'border:2px solid #ddd;' : ''}"></div>
+          <span class="color-name">${eau.couleur.name}</span>
+          <span style="font-family:'DM Mono',monospace;font-size:10px;color:#999;margin-left:4px">${eau.couleur.hex}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">Reflets</div>
+      <div class="info-content">
+        <div class="info-text">${eau.reflets}</div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-label">Contexte</div>
+      <div class="info-content">
+        <div class="info-text">${eau.contexte}</div>
+      </div>
+    </div>
+
+    <div class="prompt-block">
+      <div class="prompt-label">→ Prompt</div>
+      <div class="prompt-en">${eau.promptEn}</div>
+      <div class="prompt-fr">${eau.promptFr}</div>
+    </div>
+  `;
+  return card;
+}
+
+const g1 = document.getElementById('grid1');
+const g2 = document.getElementById('grid2');
+
+eaux.forEach((eau, i) => {
+  const card = buildCard(eau);
+  if (i < 6) g1.appendChild(card);
+  else g2.appendChild(card);
+});
+</script>
+
+</body>
+</html>
